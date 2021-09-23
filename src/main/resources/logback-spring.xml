@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<springProperty scope="context" name="springAppName" source="spring.application.name"/>
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [${springAppName:-},%thread,%X{traceId:-},%X{spanId:-}] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<springProfile name="production">
+	
+		<springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
+	
+		<appender name="GELF" class="biz.paluch.logging.gelf.logback.GelfLogbackAppender">
+			<host>udp:172.17.0.1</host>
+			<port>12201</port>
+			<version>1.1</version>
+			<timestampPattern>yyyy-MM-dd HH:mm:ss,SSSS</timestampPattern>
+			<extractStackTrace>true</extractStackTrace> <!-- we want stack-traces-->
+			<filterStackTrace>true</filterStackTrace> <!-- trim stack-traces, see: http://logging.paluch.biz/stack-trace-filter.html -->
+			<mdcProfiling>false</mdcProfiling>
+			<additionalFields>svc=${APP_NAME},env=${ENVIRONMENT_NAME}</additionalFields>
+			<additionalFieldTypes>svc=String,env=String</additionalFieldTypes>
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>${com.valcon.invoicing.gelf.logLevel:info}</level>
+			</filter>
+		</appender>
+		
+		<root level="info">
+			<appender-ref ref="GELF" />
+			<appender-ref ref="CONSOLE" />
+		</root>
+	</springProfile>
+
+	<springProfile name="!production">
+		<root level="info">
+			<appender-ref ref="CONSOLE" />
+		</root>
+	</springProfile>
+
+	<logger name="org.springframework.web.filter.CommonsRequestLoggingFilter">
+		<level value="DEBUG" />
+	</logger>
+	
+	<logger name="log4j.logger.org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod">
+		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
+</configuration>

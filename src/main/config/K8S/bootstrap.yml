@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: invauth
+  cloud:
+    kubernetes:
+      reload:
+        period: 1000
+        enabled: true
+      config:
+        enabled: true
+        name: invauth
+        namespace: default
+        sources:
+         - name: inv-auth-config

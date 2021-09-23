@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.valcon</groupId>
+	<artifactId>invoicing-auth</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>Invoicing-auth</name>
+	<description>Internal Valcon invoicing-auth project</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.3.12.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>11</java.version>
+		<spring-cloud.version>2.2.8.RELEASE</spring-cloud.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>valcon-artifactory-releases</id>
+			<name>VALCON artifactory - releases</name>
+			<url>http://artifactory.valcon/artifactory/libs-release</url>
+		</repository>
+		<repository>
+			<id>valcon-artifactory-snapshots</id>
+			<name>VALCON artifactory - snapshots</name>
+			<url>http://artifactory.valcon/artifactory/libs-snapshot</url>
+		</repository>
+	</repositories>
+	
+	<distributionManagement>
+		<repository>
+			<id>valcon-artifactory-releases-local</id>
+			<name>VALCON artifactory - local releases</name>
+			<url>http://artifactory.valcon/artifactory/libs-release-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>valcon-artifactory-snapshots-local</id>
+			<name>VALCON artifactory - local snapshots</name>
+			<url>http://artifactory.valcon/artifactory/libs-snapshot-local</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
+	<profiles>
+		<profile>
+			<id>LOCAL</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+				<property>
+					<name>m2e.version</name>
+				</property>
+			</activation>
+			<properties>
+				<env>LOCAL</env>
+			</properties>
+		</profile>
+		<profile>
+			<id>PRODUCTION</id>
+			<properties>
+				<env>PRODUCTION</env>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-config</artifactId>
+					<version>${spring-cloud.version}</version>
+					<type>pom</type>
+					<scope>import</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>K8S</id>
+			<properties>
+				<env>K8S</env>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-kubernetes-config</artifactId>
+					<version>1.1.8.RELEASE</version>
+				</dependency>
+				<!-- dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-starter-config</artifactId>
+				</dependency-->
+			</dependencies>
+		</profile>
+		<profile>
+			<id>m2e</id>
+			<activation>
+				<property>
+					<name>m2e.version</name>
+				</property>
+			</activation>
+			<properties>
+				<env-classifier></env-classifier>
+			</properties>
+		</profile>
+	</profiles>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Hoxton.SR9</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-rest</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+    		<groupId>org.springframework.cloud</groupId> 
+    		<artifactId>spring-cloud-starter-sleuth</artifactId> 
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-sleuth-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.4.2.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		
+		<dependency>
+		    <groupId>ch.qos.logback</groupId>
+	    	<artifactId>logback-core</artifactId>
+		</dependency>
+		<dependency>
+	    	<groupId>ch.qos.logback</groupId>
+		    <artifactId>logback-classic</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-access</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>6.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-jaxb-annotations</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+		</dependency>
+		
+		<dependency>
+        	<groupId>com.github.ben-manes.caffeine</groupId>
+        	<artifactId>caffeine</artifactId>
+    	</dependency>
+
+		<dependency>
+			<groupId>com.valcon</groupId>
+			<artifactId>invoicing-security-commons</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>biz.paluch.logging</groupId>
+			<artifactId>logstash-gelf</artifactId>
+			<version>1.14.1</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+<!-- 			<resource> -->
+<!-- 				<filtering>false</filtering> -->
+<!-- 				<directory>src/main/java</directory> -->
+<!-- 				<includes> -->
+<!-- 					<include>**</include> -->
+<!-- 				</includes> -->
+<!-- 				<excludes> -->
+<!-- 					<exclude>**/*.java</exclude> -->
+<!-- 				</excludes> -->
+<!-- 			</resource> -->
+			<resource>
+				<filtering>false</filtering>
+				<directory>src/main/config/${env}</directory>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<classifier>${env}</classifier>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<classifier>${env}</classifier>
+				</configuration>
+			</plugin>
+			<plugin>  
+          		<groupId>org.liquibase</groupId>  
+          		<artifactId>liquibase-maven-plugin</artifactId>  
+          		<version>4.0.0</version> 
+       		</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5.1</version>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>1.4.2.Final</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

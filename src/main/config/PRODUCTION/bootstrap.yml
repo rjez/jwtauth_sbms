@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: invauth
+  cloud:
+    config:
+      uri: http://invoicingconfserver:8080
+      username: icuser
+      password: icuser2020
+      fail-fast: true
+  profiles: 
+    active: production

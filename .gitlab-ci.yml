@@ -1,0 +1,51 @@
+stages:
+  - build
+  - push
+  - run_test
+  - run_prod
+
+
+variables:
+  IMAGE_REGISTRY: nexus.valcon
+  IMAGE_NAME: $CI_PROJECT_NAME
+  IMAGE_TAG: $CI_COMMIT_BRANCH.$CI_PIPELINE_ID
+  LATEST_TAG: $CI_COMMIT_BRANCH.latest
+  TAG_NAME: INVOICING_AUTH_TAG
+
+build-invoicingAuth:
+  stage: build
+  script:
+    - docker build -t $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG -t $IMAGE_REGISTRY/$IMAGE_NAME:$LATEST_TAG .
+
+push-invoicingAuth:
+  stage: push
+  script:
+    - docker push $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG 
+    - docker push $IMAGE_REGISTRY/$IMAGE_NAME:$LATEST_TAG
+    - ssh wedos "docker pull $IMAGE_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
+
+deploy-invoicingAuth-test:
+  stage: run_test
+  only:
+    - master
+  script:
+    - cd /home/docker/internal/test
+    - export $TAG_NAME=$IMAGE_TAG
+    - docker-compose up -d --no-deps $CI_PROJECT_NAME
+
+deploy-invoicingAuth-stage:
+  stage: run_test
+  only:
+    - master
+  script:
+    - cd /home/docker/internal/stage
+    - export $TAG_NAME=$IMAGE_TAG
+    - docker-compose up -d --no-deps $CI_PROJECT_NAME
+
+deploy-invoicingAuth-prod:
+  stage: run_prod
+  when: manual
+  only:
+    - master
+  script:
+    - ssh wedos "cd /srv/internal && export $TAG_NAME=$IMAGE_TAG && docker-compose up -d --no-deps $CI_PROJECT_NAME"
